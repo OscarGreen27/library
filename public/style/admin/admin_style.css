@@ -1,0 +1,49 @@
+#main {
+  padding-left: 15%;
+  padding-right: 15%;
+}
+
+.f-button {
+  justify-content: flex-end;
+}
+
+#button-container {
+  display: flex;
+  justify-content: center;
+}
+
+.navigation-button {
+  margin-right: 15px;
+  width: 40px;
+}
+
+#add-book-container {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(0, 0, 0, 0.5);
+  z-index: 9999;
+  display: none;
+  justify-content: center;
+  align-items: center;
+}
+
+#add-book-form {
+  display: inline-block;
+  padding: 20px;
+  background-color: #f9f9f9;
+  border: 1px solid #ccc;
+  width: 50%;
+}
+
+#add-form-header {
+  display: flex;
+  justify-content: space-between;
+}
+
+#submit {
+  width: 50%;
+  margin: 20px;
+}

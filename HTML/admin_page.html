@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.5/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+      integrity="sha384-SgOJa3DmI69IUzQ2PVdRZhwQ+dy64/BUtbMJw1MZ8t5HZApcHrRKUc4W0kG879m7"
+      crossorigin="anonymous"
+    />
+    <link rel="stylesheet" href="/public/style/books/libs.min.css" />
+    <link rel="stylesheet" href="/public/style/book/style.css" />
+    <link rel="stylesheet" href="/public/style/admin/admin_style.css" />
+
+    <script src="/public/scripts/admin/main-admin.js" defer></script>
+    <script src="/public/scripts/admin/add-book.js " defer></script>
+    <script src="/public/scripts/admin/delete-book.js" defer></script>
+  </head>
+  <body>
+    <header class="p-3 bg-dark text-white">
+      <div class="container">
+        <div class="d-flex flex-wrapalign-items-center f-button">
+          <div class="text-end">
+            <button id="add-new-book" type="button" class="btn btn-primary">
+              Додати нову книгу
+            </button>
+            <!--<button type="button" class="btn btn-secondary">Вихід</button>-->
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <section id="main">
+      <table id="table" class="table table-striped">
+        <thead class="thead-dark">
+          <tr>
+            <th scope="col">ID</th>
+            <th scope="col">Назва</th>
+            <th scope="col">Автори</th>
+            <th scope="col">Кількість кліків</th>
+            <th scope="col">Видалити</th>
+          </tr>
+        </thead>
+        <tbody id="tbody"></tbody>
+      </table>
+
+      <div id="button-container"></div>
+    </section>
+
+    <sectio id="add-book-container">
+      <form id="add-book-form">
+        <div id="add-form-header">
+          <h1>Додати нову книгу</h1>
+          <button
+            id="close-butoon"
+            type="button"
+            class="btn-close"
+            aria-label="Close"
+          ></button>
+        </div>
+        <div class="form-group">
+          <label for="exampleFormControlInput1">Назва</label>
+          <input
+            data-field="title"
+            type="text"
+            class="form-control"
+            id="exampleFormControlInput1"
+            placeholder="Clean Code: A Handbook of Agile Software Craftsmanship"
+          />
+        </div>
+
+        <div class="form-group">
+          <label for="exampleFormControlInput2">Рік видання</label>
+          <input
+            data-field="year"
+            type="text"
+            class="form-control"
+            id="exampleFormControlInput2"
+            pattern="\d{4}"
+            maxlength="4"
+            placeholder="2008"
+          />
+        </div>
+
+        <div class="form-group">
+          <label for="exampleFormControlInput3">Автори</label>
+          <input
+            data-field="author"
+            type="text"
+            class="form-control"
+            id="exampleFormControlInput3"
+            placeholder="Robert C. Martin, Dean Wampler"
+          />
+        </div>
+
+        <div class="form-group">
+          <label for="exampleFormControlInput4">Кількість сторінок</label>
+          <input
+            data-field="pages"
+            type="text"
+            class="form-control"
+            id="exampleFormControlInput4"
+            pattern="\d{4}"
+            maxlength="4"
+            placeholder="464"
+          />
+        </div>
+
+        <div class="form-group">
+          <label for="exampleFormControlInput5">ISBN</label>
+          <input
+            data-field="isbn"
+            type="text"
+            class="form-control"
+            id="exampleFormControlInput5"
+            pattern="\d{10}"
+            maxlength="10"
+            placeholder="9780132350884"
+          />
+        </div>
+
+        <div class="form-group">
+          <label for="exampleFormControlTextarea1">Опис</label>
+          <textarea
+            data-field="description"
+            class="form-control"
+            id="exampleFormControlTextarea1"
+            rows="3"
+          ></textarea>
+
+        <div class="form-group">
+          <label for="exampleFormControlInput6">Файл обкладинки</label>
+          <input
+            data-field="cover"
+            type="file"
+            class="form-control"
+            id="exampleFormControlInput6"
+            pattern="\d{10}"
+            maxlength="10"
+          />
+        </div>
+
+          <button id="submit" type="button" class="btn btn-primary">
+            Додати нову книгу
+          </button>
+        </div>
+      </form>
+    </section>
+  </body>
+</html>
