@@ -1,0 +1,10 @@
+{
+    "compilerOptions": {
+        "outDir": "./public/scripts",
+        "rootDir": "./src/scripts",
+        "target": "es6",
+        "module": "esnext",
+        "strict": true
+    },
+    "include": ["src/scripts/**/*"]
+}

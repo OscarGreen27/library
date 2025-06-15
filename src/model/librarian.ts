@@ -3,7 +3,10 @@ import mysql, {
   ResultSetHeader,
   RowDataPacket,
 } from "mysql2/promise";
+import dotenv from "dotenv";
 import { BookDto, BookSchema } from "./books_schema.js";
+
+dotenv.config();
 
 //the class is responsible for working with the database
 class Librarian {
@@ -18,11 +21,12 @@ class Librarian {
    * @returns instance of the Librarian class
    */
   public static async create(): Promise<Librarian> {
-    const connection = await this.getConnection();
-    if (!connection) {
-      throw console.error("Connection error!");
+    try {
+      const connection = await this.getConnection();
+      return new Librarian(connection);
+    } catch (err) {
+      throw err;
     }
-    return new Librarian(connection);
   }
 
   /**
@@ -30,12 +34,22 @@ class Librarian {
    * @returns connection
    */
   private static async getConnection(): Promise<Connection> {
+    const DB_HOST = process.env["DB_HOST"];
+    const DB_NAME = process.env["DB_NAME"];
+    const DB_USER = process.env["DB_USER"];
+    const DB_PASS = process.env["DB_PASS"];
+
+    if (!DB_HOST || !DB_NAME || !DB_PASS || !DB_USER) {
+      throw new Error(
+        "Server configuration parameters is undefined! Check env file."
+      );
+    }
     try {
       return await mysql.createConnection({
-        host: "localhost",
-        user: "librarian",
-        password: "12345",
-        database: "lib",
+        host: DB_HOST,
+        user: DB_USER,
+        password: DB_PASS,
+        database: DB_NAME,
       });
     } catch (err) {
       console.log(err);
@@ -54,7 +68,6 @@ class Librarian {
       );
       return this.parseBooks(rows);
     } catch (err) {
-      console.error("BD is not connected!", err);
       throw new Error("Database connection failed");
     }
   }
@@ -86,11 +99,11 @@ class Librarian {
       throw new Error("Book id is invalid or DB connection is fals");
     }
   }
-/**
- * The method queries the database to add a new book.
- * @param newBook an object that contains data about a new book
- * @returns new book id
- */
+  /**
+   * The method queries the database to add a new book.
+   * @param newBook an object that contains data about a new book
+   * @returns new book id
+   */
   public async addBook(newBook: BookDto): Promise<number> {
     const validated = BookSchema.safeParse(newBook);
 
@@ -116,11 +129,11 @@ class Librarian {
     );
     return result.insertId;
   }
-/**
- * The method queries the database to delete the book.
- * @param id ID of the book you want to delete
- * @returns true if the book is deleted, false if not deleted
- */
+  /**
+   * The method queries the database to delete the book.
+   * @param id ID of the book you want to delete
+   * @returns true if the book is deleted, false if not deleted
+   */
   public async deleteBook(id: number): Promise<boolean> {
     try {
       const [result] = await this.connection.execute<ResultSetHeader>(
@@ -133,11 +146,11 @@ class Librarian {
       throw new Error("Deletin failed!");
     }
   }
-/**
- * The method changes the data type from string to number in the year, pages, isbn fields of the book object.
- * @param raw object book received from client
- * @returns object of type BookDto
- */
+  /**
+   * The method changes the data type from string to number in the year, pages, isbn fields of the book object.
+   * @param raw object book received from client
+   * @returns object of type BookDto
+   */
   public normalizedBook(raw: Record<string, string>): BookDto {
     return BookSchema.parse({
       title: raw["title"],
@@ -147,6 +160,24 @@ class Librarian {
       isbn: this.isNumber(raw["isbn"]),
       description: raw["description"],
     });
+  }
+
+  /**
+   * Increments the wantCount field by 1 for the book with the corresponding id
+   * @param id The ID of the book
+   * @returns true if the book was updated
+   */
+  public async incrementWantCount(id: number): Promise<boolean> {
+    try {
+      const [result] = await this.connection.execute<ResultSetHeader>(
+        `UPDATE books SET wantCount = wantCount + 1 WHERE id = ?`,
+        [id]
+      );
+
+      return result.affectedRows > 0;
+    } catch (err) {
+      throw new Error("Failed to increase counter add to wishlist");
+    }
   }
 
   private parseBooks(rows: RowDataPacket[]): BookDto[] {

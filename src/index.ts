@@ -3,12 +3,13 @@ import { fileURLToPath } from "url";
 import path, { dirname } from "path";
 import router from "./controller/router.js";
 import adminRouter from "./controller/admin_router.js";
-
-const PORT = 8080;
+import dotenv from "dotenv";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 const publicPath = path.join(__dirname, "..", "public");
+
+dotenv.config({ path: ".env" });
 
 const app = express();
 
@@ -17,6 +18,7 @@ app.use(express.json());
 app.use(router);
 app.use(adminRouter);
 
+const PORT = process.env["SERVER_PORT"];
 app.listen(PORT, (error) => {
   if (error) {
     console.log(`Server start fail, error: ${error}`);

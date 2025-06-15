@@ -1,3 +1,16 @@
+interface Book {
+  id: number;
+  title: string;
+  author: string;
+  cover: string;
+}
+
+interface BookResponse {
+  books: Book[];
+  offset: number;
+  total: number;
+}
+
 const params = {
   offset: 0,
   limit: 18,
@@ -8,8 +21,13 @@ document.addEventListener("DOMContentLoaded", async () => {
   const getMoreB = document.getElementById("get-more");
   const bookCount = document.getElementById("content");
 
-  const observer = new MutationObserver(() => {
-  });
+  if (
+    !(getMoreB instanceof HTMLElement) ||
+    !(bookCount instanceof HTMLElement)
+  ) {
+    return;
+  }
+  const observer = new MutationObserver(() => {});
   observer.observe(bookCount, { childList: true });
 
   const books = await makeRequest(params);
@@ -23,27 +41,38 @@ document.addEventListener("DOMContentLoaded", async () => {
   });
 });
 
-async function makeRequest(params) {
-  const queryString = new URLSearchParams(params).toString();
+async function makeRequest(params: {
+  offset: number;
+  limit: number;
+  total: number;
+}) {
+  const queryString = new URLSearchParams({
+    offset: params["offset"].toString(),
+    limit: params["limit"].toString(),
+    total: params["total"].toString()
+  }).toString();
   const response = await fetch(
     `http://localhost:8080/api/v1/books?${queryString}`
   );
-  const data = await response.json();
+  const data: BookResponse = await response.json();
   params.offset = data.offset;
   params.total = data.total;
   return data.books;
 }
 
-function checkVisible(elem, count) {
-  if (count !== params.total) {
+function checkVisible(elem: HTMLElement, count: number) {
+  if (count !== params["total"]) {
     elem.style.display = "block";
   } else {
     elem.style.display = "none";
   }
 }
 
-function render(books) {
-  const content = document.getElementById("content");
+function render(books: Book[]) {
+  const content = document.getElementById("content"); 
+  if(!(content instanceof HTMLElement)){
+    return;
+  }
 
   books.forEach((book) => {
     const newElem = `<div class="book_item col-xs-6 col-sm-3 col-md-2 col-lg-2" data-book-id="${book.id}">
