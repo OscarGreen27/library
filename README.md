@@ -22,9 +22,7 @@ A simple web application library that runs on node.js using typescript and expre
       DB_USER=database username
       DB_PASS=database user password
 5. Сompile files
-   - tsc
-     AND
-   - tsc -p tsconfig.scripts.json (separately for frontend scripts)
+   - tsc AND tsc -p tsconfig.scripts.json (separately for frontend scripts)
 6. Launch
    - node dist/index.js or npm start
 
