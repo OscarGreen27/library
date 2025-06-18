@@ -55,18 +55,19 @@ router
   .post("/book/:id/want", async (req: Request, res: Response) => {
     const id = Number(req.params["id"]);
     if (isNaN(id)) {
-      return res.status(400).json({ ok: false });
+      res.status(400).json({ ok: false });
+      return;
     }
 
     try {
       const updated = await lib.incrementWantCount(id);
       if (updated) {
-        return res.status(200).json({ ok: true });
+        res.status(200).json({ ok: true });
       } else {
-        return res.status(404).json({ ok: false });
+        res.status(404).json({ ok: false });
       }
     } catch (error) {
-      return res.status(500).json({ error: "Помилка сервера" });
+      res.status(500).json({ error: "Помилка сервера" });
     }
   });
 
