@@ -15,8 +15,9 @@ export class Render {
     const $ = cheerio.load(rawPage);
     const book = data[0];
     if (!book) {
-      throw new Error("imposible!");
+      throw new Error("Book is invalid!");
     }
+    $("#id").attr("book-id", `${String(book.id)}`);
     $("#title").text(book.title);
     $("#author").text(book.author);
     $("#year").text(String(book.year));

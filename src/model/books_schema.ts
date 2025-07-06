@@ -3,14 +3,14 @@ import { z } from "zod/v4";
 
 export const BookSchema = z.object({
   title: z.string(),
-  year: z.number(),
+  year: z.coerce.number(),
   author: z.string(),
-  pages: z.number(),
-  isbn: z.number(),
+  pages: z.coerce.number(),
+  isbn: z.coerce.number(),
   description: z.string(),
-  id: z.number().optional(),
-  numbersOfView: z.number().optional(),
-  wantCount: z.number().optional(),
+  id: z.coerce.number().optional(),
+  numbersOfView: z.coerce.number().optional(),
+  wantCount: z.coerce.number().optional(),
   cover: z.string().optional()
 });
 

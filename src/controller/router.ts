@@ -67,6 +67,7 @@ router
         res.status(404).json({ ok: false });
       }
     } catch (error) {
+      console.error("INCREMENT ERROR:", error);
       res.status(500).json({ error: "Помилка сервера" });
     }
   });

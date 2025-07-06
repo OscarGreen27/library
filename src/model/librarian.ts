@@ -1,19 +1,16 @@
-import mysql, {
-  Connection,
-  ResultSetHeader,
-  RowDataPacket,
-} from "mysql2/promise";
+import pkg from "pg";
 import dotenv from "dotenv";
 import { BookDto, BookSchema } from "./books_schema.js";
 
-dotenv.config();
+const { Client } = pkg;
 
+dotenv.config();
 //the class is responsible for working with the database
 class Librarian {
-  private connection!: Connection;
+  private client: pkg.Client;
 
-  private constructor(connection: Connection) {
-    this.connection = connection;
+  private constructor(client: pkg.Client) {
+    this.client = client;
   }
 
   /**
@@ -22,37 +19,38 @@ class Librarian {
    */
   public static async create(): Promise<Librarian> {
     try {
-      const connection = await this.getConnection();
-      return new Librarian(connection);
+      const client = await this.getConnection();
+      return new Librarian(client);
     } catch (err) {
       throw err;
     }
   }
 
-  /**
-   * connection method to the database
-   * @returns connection
-   */
-  private static async getConnection(): Promise<Connection> {
+  private static async getConnection(): Promise<pkg.Client> {
     const DB_HOST = process.env["DB_HOST"];
     const DB_NAME = process.env["DB_NAME"];
     const DB_USER = process.env["DB_USER"];
     const DB_PASS = process.env["DB_PASS"];
+    const DB_PORT = process.env["DB_PORT"];
 
-    if (!DB_HOST || !DB_NAME || !DB_PASS || !DB_USER) {
+    if (!DB_HOST || !DB_NAME || !DB_PASS || !DB_USER || !DB_PORT) {
       throw new Error(
-        "Server configuration parameters is undefined! Check env file."
+        "Server configuration parameters are undefined! Check env file."
       );
     }
+    const client = new Client({
+      host: DB_HOST,
+      port: parseInt(DB_PORT),
+      user: DB_USER,
+      password: DB_PASS,
+      database: DB_NAME,
+    });
+
     try {
-      return await mysql.createConnection({
-        host: DB_HOST,
-        user: DB_USER,
-        password: DB_PASS,
-        database: DB_NAME,
-      });
+      await client.connect();
+      return client;
     } catch (err) {
-      console.log(err);
+      console.error(err);
       throw err;
     }
   }
@@ -63,10 +61,8 @@ class Librarian {
    */
   public async getAllBooks(): Promise<BookDto[]> {
     try {
-      const [rows] = await this.connection.execute<RowDataPacket[]>(
-        "SELECT * FROM books"
-      );
-      return this.parseBooks(rows);
+      const result = await this.client.query("SELECT * FROM books");
+      return this.parseBooks(result.rows);
     } catch (err) {
       throw new Error("Database connection failed");
     }
@@ -79,26 +75,23 @@ class Librarian {
    */
   public async getBook(id: number): Promise<BookDto[]> {
     try {
-      const [rows] = await this.connection.execute<RowDataPacket[]>(
-        `SELECT * FROM books WHERE id = ?`,
+      const result = await this.client.query(
+        "SELECT * FROM books WHERE id = $1",
+        [id]
+      );
+      const books = this.parseBooks(result.rows);
+
+      await this.client.query(
+        `UPDATE books SET "numbersOfView" = "numbersOfView" + 1 WHERE id = $1`,
         [id]
       );
 
-      const books = this.parseBooks(rows);
-
-      if (books.length === 0) {
-        throw new Error(`Book with id:${id} not found!`);
-      } else {
-        await this.connection.execute(
-          `UPDATE books SET numbersOfView = numbersOfView + 1 WHERE id = ?`,
-          [id]
-        );
-      }
       return books;
     } catch (err) {
-      throw new Error("Book id is invalid or DB connection is fals");
+      throw new Error("Book id is invalid or DB connection failed");
     }
   }
+
   /**
    * The method queries the database to add a new book.
    * @param newBook an object that contains data about a new book
@@ -123,12 +116,19 @@ class Librarian {
       "cover",
     ];
     const values = keys.map((key) => book[key]);
-    const [result] = await this.connection.execute<ResultSetHeader>(
-      `INSERT INTO books (${keys.join(", ")}) VALUES (?,?,?,?,?,?,?)`,
+
+    const placeholders = keys.map((_, index) => `$${index + 1}`).join(", ");
+
+    const result = await this.client.query(
+      `INSERT INTO books (${keys.join(
+        ", "
+      )}) VALUES (${placeholders}) RETURNING id`,
       values
     );
-    return result.insertId;
+
+    return result.rows[0].id;
   }
+
   /**
    * The method queries the database to delete the book.
    * @param id ID of the book you want to delete
@@ -136,16 +136,40 @@ class Librarian {
    */
   public async deleteBook(id: number): Promise<boolean> {
     try {
-      const [result] = await this.connection.execute<ResultSetHeader>(
-        "DELETE FROM books WHERE id = ?",
+      const result = await this.client.query(
+        "DELETE FROM books WHERE id = $1",
         [id]
       );
-
-      return result.affectedRows > 0;
+      if (typeof result.rowCount === "number") {
+        return result.rowCount > 0;
+      }
+      return false;
     } catch (err) {
-      throw new Error("Deletin failed!");
+      throw new Error("Deletion failed!");
     }
   }
+
+  /**
+   * Increments the wantCount field by 1 for the book with the corresponding id
+   * @param id The ID of the book
+   * @returns true if the book was updated
+   */
+  public async incrementWantCount(id: number): Promise<boolean> {
+    try {
+      const result = await this.client.query(
+        `UPDATE books SET "wantCount" = "wantCount" + 1 WHERE id = $1`,
+        [id]
+      );
+      if (typeof result.rowCount === "number") {
+        return result.rowCount > 0;
+      }
+      return false;
+    } catch (err) {
+      console.error("DB ERROR in incrementWantCount:", err);
+      throw new Error("Failed to increase counter add to wishlist");
+    }
+  }
+
   /**
    * The method changes the data type from string to number in the year, pages, isbn fields of the book object.
    * @param raw object book received from client
@@ -163,30 +187,29 @@ class Librarian {
   }
 
   /**
-   * Increments the wantCount field by 1 for the book with the corresponding id
-   * @param id The ID of the book
-   * @returns true if the book was updated
+   *The method converts raw rows obtained from the database into valid objects of type BookDto.
+   * @param rows - an array of objects from the database
+   * @returns - an array of BookDto objects that have passed validation
    */
-  public async incrementWantCount(id: number): Promise<boolean> {
-    try {
-      const [result] = await this.connection.execute<ResultSetHeader>(
-        `UPDATE books SET wantCount = wantCount + 1 WHERE id = ?`,
-        [id]
-      );
-
-      return result.affectedRows > 0;
-    } catch (err) {
-      throw new Error("Failed to increase counter add to wishlist");
-    }
-  }
-
-  private parseBooks(rows: RowDataPacket[]): BookDto[] {
+  private parseBooks(rows: any[]): BookDto[] {
     const validBooks: BookDto[] = [];
 
     for (const row of rows) {
-      const parsed = BookSchema.safeParse(row);
+      const transformed = {
+        ...row,
+        id: Number(row.id),
+        year: Number(row.year),
+        pages: Number(row.pages),
+        numbersOfView: Number(row.numbersOfView),
+        wantCount: Number(row.wantCount),
+        isbn: Number(row.isbn),
+      };
+
+      const parsed = BookSchema.safeParse(transformed);
       if (parsed.success) {
         validBooks.push(parsed.data);
+      } else {
+        console.error("Validation failed:", parsed.error.format());
       }
     }
     return validBooks;
@@ -200,9 +223,5 @@ class Librarian {
   }
 }
 
-/**
- * A single instance of the librarian class is created and imported from the module to provide a single connection tone.
- */
 const lib: Librarian = await Librarian.create();
-
 export default lib;
