@@ -62,7 +62,7 @@ class Librarian {
    */
   public async getAllBooks(): Promise<BookDto[]> {
     try {
-      const result = await this.client.query("SELECT * FROM books");
+      const result = await tDB_PORThis.client.query("SELECT * FROM books");
       return this.parseBooks(result.rows);
     } catch (err) {
       throw new Error("Database connection failed");
