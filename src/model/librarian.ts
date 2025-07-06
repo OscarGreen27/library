@@ -5,6 +5,7 @@ import { BookDto, BookSchema } from "./books_schema.js";
 const { Client } = pkg;
 
 dotenv.config();
+
 //the class is responsible for working with the database
 class Librarian {
   private client: pkg.Client;
