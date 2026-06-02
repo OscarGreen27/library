@@ -1,14 +1,14 @@
 import z from "zod/v4";
 
-export const BookEntitySchema = z.object({
-  id: z.number(),
+export const BookSchema = z.object({
+  id: z.number().int().positive(),
   title: z.string(),
   year: z.coerce.number(),
-  author: z.string(),
+  authors: z.string().array(),
   pages: z.coerce.number(),
   isbn: z.coerce.number(),
   description: z.string(),
   cover: z.string(),
 });
 
-export type BookEntity = z.infer<typeof BookEntitySchema>;
+export type Book = z.infer<typeof BookSchema>;
