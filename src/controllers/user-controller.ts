@@ -3,11 +3,7 @@ import { UserAuthentificationDto } from "../dto/request-dto/user-authentificatio
 import { UserRegistrationDto } from "../dto/request-dto/user-registration-dto.js";
 import { NextFunction, Request, Response } from "express";
 
-export const registerUser = async (
-  req: Request,
-  res: Response,
-  next: NextFunction,
-) => {
+export const singin = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const newUserData = UserRegistrationDto.parse(req.body);
     await userService.createUser(newUserData);
@@ -17,11 +13,7 @@ export const registerUser = async (
   }
 };
 
-export const authentificateUser = async (
-  req: Request,
-  res: Response,
-  next: NextFunction,
-) => {
+export const login = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const data = UserAuthentificationDto.parse(req.body);
     const loginResult = await userService.login(data);
@@ -34,7 +26,7 @@ export const authentificateUser = async (
   }
 };
 
-export const destroySession = async (req: Request, res: Response) => {
+export const logout = async (req: Request, res: Response) => {
   req.session.destroy((err) => {
     if (err) {
       res.status(500).json({
