@@ -42,31 +42,6 @@ app.use("/api/v1/author", authorRouter);
 app.use("/api/v1", userRouter);
 
 app.use(errorHandler);
-//app.use(adminRouter);
-
-////session test start
-// const isLogined = (req: Request, res: Response, next: NextFunction) => {
-//   if (req.session && req.session.userId) {
-//     return next();
-//   }
-//   res.status(401).json({
-//     massage: "Not authorize!",
-//   });
-// };
-// app.post("/login", (req: Request, res: Response) => {
-//   const login = req.body.login;
-//   if (login === "admin") {
-//     req.session.userId = "one";
-//   }
-//   res.json({ message: req.session.userId });
-// });
-
-// app.get("/fuu", isLogined, (req: Request, res: Response) => {
-//   res.json({
-//     message: "Welcome!",
-//   });
-// });
-////session test end
 
 const PORT = process.env["APP_PORT"];
 app.listen(PORT, async (error) => {
