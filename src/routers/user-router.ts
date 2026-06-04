@@ -3,8 +3,8 @@ import * as userContreller from "../controllers/user-controller.js";
 
 const userRouter = express.Router();
 
-userRouter.post("/singup", userContreller.registerUser);
-userRouter.post("/login", userContreller.authentificateUser);
-userRouter.post("/logout", userContreller.destroySession);
+userRouter.post("/singup", userContreller.singin);
+userRouter.post("/login", userContreller.login);
+userRouter.post("/logout", userContreller.logout);
 
 export default userRouter;
