@@ -2,14 +2,19 @@ import * as bcrypt from "bcrypt-ts";
 import pool from "../config/postgresql-connection.js";
 import { UserAuthentification } from "../dto/request-dto/user-authentification-dto.js";
 import { UserRegistration } from "../dto/request-dto/user-registration-dto.js";
+import z from "zod/v4";
 import dotenv from "dotenv";
-import { UserSessionData } from "../types/user-session-data.js";
+import { UserSessionData, UserSessionDataSchema } from "../types/user-session-data.js";
 
 dotenv.config();
 
-export const createUser = async (
-  newUser: UserRegistration,
-): Promise<number> => {
+export const createUser = async (newUser: UserRegistration): Promise<number> => {
+  const isEmailFree = await pool.query("SELECT EXISTS(SELECT 1 FROM users WHERE email=$1)", [
+    newUser.email,
+  ]);
+  if (isEmailFree.rows[0].exists) {
+    throw new Error("Email already in use");
+  }
   const salt = await bcrypt.genSalt(Number(process.env["SALT"]));
   newUser.password = await bcrypt.hash(newUser.password, salt);
 
@@ -24,18 +29,14 @@ export const createUser = async (
     values,
   );
 
-  return result.rows[0].id;
+  return z.number().parse(result.rows[0].id);
 };
 
-export const login = async (
-  data: UserAuthentification,
-): Promise<UserSessionData> => {
+export const login = async (data: UserAuthentification): Promise<UserSessionData> => {
   const { email, password } = data;
 
-  const result = await pool.query(
-    "SELECT id, hash, role FROM users WHERE email=$1",
-    [email],
-  );
+  const result = await pool.query("SELECT id, hash, role FROM users WHERE email=$1", [email]);
+
   if (!result.rows[0]) {
     throw new Error("Email/password combination error!");
   }
@@ -45,5 +46,5 @@ export const login = async (
   if (!isPasswordCorrect) {
     throw new Error("Email/password combination error!");
   }
-  return userSessionData;
+  return UserSessionDataSchema.parse(userSessionData);
 };

@@ -2,10 +2,7 @@ import pool from "../config/postgresql-connection.js";
 import { Author, AuthorSchema } from "../dto/response-dto/author-dto.js";
 import z from "zod/v4";
 
-export const getAuthors = async (
-  offset: number,
-  limit: number,
-): Promise<Author[]> => {
+export const getAuthors = async (offset: number, limit: number): Promise<Author[]> => {
   const result = await pool.query(
     `SELECT * FROM authors
         LIMIT $1 OFFSET $2`,
@@ -28,11 +25,8 @@ export const getAuthor = async (id: number): Promise<Author> => {
 };
 
 export const addAuthor = async (name: string): Promise<number> => {
-  const result = await pool.query(
-    `INSERT INTO authors (name) VALUES($1) RETURNING id`,
-    [name],
-  );
-  return result.rows[0].id;
+  const result = await pool.query(`INSERT INTO authors (name) VALUES($1) RETURNING id`, [name]);
+  return z.number().parse(result.rows[0].id);
 };
 
 export const deleteAuthors = async (id: number): Promise<boolean> => {
@@ -44,9 +38,7 @@ export const deleteAuthors = async (id: number): Promise<boolean> => {
     //2. Delete relationship
     await client.query(`DELETE FROM book_author WHERE author_id = $1`, [id]);
     //3. Delete author
-    const result = await client.query(`DELETE FROM authors WHERE id = $1`, [
-      id,
-    ]);
+    const result = await client.query(`DELETE FROM authors WHERE id = $1`, [id]);
     //4. End transaction
     await client.query("COMMIT");
 
