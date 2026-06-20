@@ -4,11 +4,7 @@ import { QueryParamSchema } from "../dto/request-dto/query-param-dto.js";
 import { IdDtoSchema } from "../dto/request-dto/id-dto.js";
 import { newBookDtoSchema } from "../dto/request-dto/new-book-dto.js";
 
-export const getAllBooks = async (
-  req: Request,
-  res: Response,
-  next: NextFunction,
-) => {
+export const getAllBooks = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const { offset, limit } = QueryParamSchema.parse(req.query);
 
@@ -22,13 +18,9 @@ export const getAllBooks = async (
   }
 };
 
-export const getBook = async (
-  req: Request,
-  res: Response,
-  next: NextFunction,
-) => {
+export const getBook = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const { id } = IdDtoSchema.parse(req.params);
+    const id  = IdDtoSchema.parse(req.params);
     const book = await bookService.getBook(id);
     res.status(200).json({
       status: "success",
@@ -39,13 +31,9 @@ export const getBook = async (
   }
 };
 
-export const incrementWant = async (
-  req: Request,
-  res: Response,
-  next: NextFunction,
-) => {
+export const incrementWant = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const { id } = IdDtoSchema.parse(req.params);
+    const  id  = IdDtoSchema.parse(req.params);
     const result = await bookService.updateWantCount(id);
     res.status(200).json({
       status: "success",
@@ -56,11 +44,7 @@ export const incrementWant = async (
   }
 };
 
-export const addBook = async (
-  req: Request,
-  res: Response,
-  next: NextFunction,
-) => {
+export const addBook = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const data = newBookDtoSchema.parse(req.body.data);
     const result = await bookService.addBook(data);
@@ -73,13 +57,9 @@ export const addBook = async (
   }
 };
 
-export const deleteBook = async (
-  req: Request,
-  res: Response,
-  next: NextFunction,
-) => {
+export const deleteBook = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const { id } = IdDtoSchema.parse(req.params);
+    const id  = IdDtoSchema.parse(req.params);
     const result = await bookService.deleteBook(id);
     res.status(200).json({ success: result });
   } catch (err) {

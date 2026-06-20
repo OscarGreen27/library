@@ -26,7 +26,7 @@ export const getAuthor = async (
   next: NextFunction,
 ) => {
   try {
-    const { id } = IdDtoSchema.parse(req.params);
+    const id = IdDtoSchema.parse(req.params);
     const result = await authorService.getAuthor(id);
     res.status(200).json({ data: result });
   } catch (err) {
