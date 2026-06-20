@@ -12,10 +12,7 @@ dotenv.config();
  * @param limit
  * @returns array of books(Book[]) if the data received from the database has passed validation, otherwise an empty array is returned
  */
-export const getBooks = async (
-  offset: number,
-  limit: number,
-): Promise<Book[]> => {
+export const getBooks = async (offset: number, limit: number): Promise<Book[]> => {
   const result = await pool.query(
     `SELECT books.*, json_agg(authors.name) AS authors FROM books 
       LEFT JOIN book_author ON books.id = book_author.book_id 
@@ -54,10 +51,7 @@ export const getBook = async (id: number): Promise<Book | string> => {
     return " ";
   }
 
-  await pool.query(
-    `UPDATE clicks SET "clicks_count" = "clicks_count" + 1 WHERE book_id = $1`,
-    [id],
-  );
+  await pool.query(`UPDATE clicks SET "clicks_count" = "clicks_count" + 1 WHERE book_id = $1`, [id]);
 
   return book.data;
 };
@@ -147,12 +141,12 @@ async function insertNewBook(
     const bookId: number = bookRes.rows[0].id;
 
     //2. Making new relations between authors and books
-    for (const authorId of authors) {
-      await client.query(
-        `INSERT INTO book_author (book_id, author_id) VALUES ($1, $2)`,
-        [bookId, authorId],
-      );
-    }
+    await client.query(
+      `
+    INSERT INTO book_author (book_id, author_id)
+    SELECT $1, unnest($2::int[])`,
+      [bookId, authors],
+    );
     //3. Insert new book id into want and click tables
     await client.query(`INSERT INTO want (book_id) VALUES ($1) `, [bookId]);
     await client.query(`INSERT INTO clicks (book_id) VALUES ($1) `, [bookId]);
