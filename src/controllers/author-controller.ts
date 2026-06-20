@@ -4,11 +4,7 @@ import { QueryParamSchema } from "../dto/request-dto/query-param-dto.js";
 import { IdDtoSchema } from "../dto/request-dto/id-dto.js";
 import { NewAuthorSchema } from "../dto/request-dto/new-author-dto.js";
 
-export const getAuthors = async (
-  req: Request,
-  res: Response,
-  next: NextFunction,
-) => {
+export const getAuthors = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const { offset, limit } = QueryParamSchema.parse(req.query);
     const result = await authorService.getAuthors(offset, limit);
@@ -20,13 +16,9 @@ export const getAuthors = async (
   }
 };
 
-export const getAuthor = async (
-  req: Request,
-  res: Response,
-  next: NextFunction,
-) => {
+export const getAuthor = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const id = IdDtoSchema.parse(req.params);
+    const id = IdDtoSchema.parse(req.params["id"]);
     const result = await authorService.getAuthor(id);
     res.status(200).json({ data: result });
   } catch (err) {
@@ -34,11 +26,7 @@ export const getAuthor = async (
   }
 };
 
-export const addAuthor = async (
-  req: Request,
-  res: Response,
-  next: NextFunction,
-) => {
+export const addAuthor = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const { name } = NewAuthorSchema.parse(req.body);
     const result = await authorService.addAuthor(name);
@@ -48,13 +36,9 @@ export const addAuthor = async (
   }
 };
 
-export const deleteAuthor = async (
-  req: Request,
-  res: Response,
-  next: NextFunction,
-) => {
+export const deleteAuthor = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const id = Number(req.params);
+    const id = IdDtoSchema.parse(req.params["id"]);
     const result = await authorService.deleteAuthors(id);
     res.status(200).json({
       ok: result,

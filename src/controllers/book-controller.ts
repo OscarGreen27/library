@@ -20,7 +20,7 @@ export const getAllBooks = async (req: Request, res: Response, next: NextFunctio
 
 export const getBook = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const id  = IdDtoSchema.parse(req.params);
+    const id = IdDtoSchema.parse(req.params["id"]);
     const book = await bookService.getBook(id);
     res.status(200).json({
       status: "success",
@@ -33,7 +33,7 @@ export const getBook = async (req: Request, res: Response, next: NextFunction) =
 
 export const incrementWant = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const  id  = IdDtoSchema.parse(req.params);
+    const id = IdDtoSchema.parse(req.params["id"]);
     const result = await bookService.updateWantCount(id);
     res.status(200).json({
       status: "success",
@@ -59,7 +59,7 @@ export const addBook = async (req: Request, res: Response, next: NextFunction) =
 
 export const deleteBook = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const id  = IdDtoSchema.parse(req.params);
+    const id = IdDtoSchema.parse(req.params["id"]);
     const result = await bookService.deleteBook(id);
     res.status(200).json({ success: result });
   } catch (err) {
