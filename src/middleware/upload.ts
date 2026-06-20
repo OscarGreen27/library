@@ -1,20 +1,19 @@
-import multer, { FileFilterCallback, MulterError } from "multer";
-import fsSync from "fs";
+import multer, { MulterError } from "multer";
+import fsSync from "node:fs";
 import dotenv from "dotenv";
-import path from "path";
+import path from "node:path";
 
 dotenv.config();
 
-//middleware responsible for saving images
 export const upload = multer({
   /**
-   * Image is saved to a temporary folder for later movement.
-   * After checking the existence of the book id, the file will be moved to the appropriate folder
+   * Image is saved to a temporary directoty for later movement.
+   * After checking the existence of the book id, the file will be moved to the appropriate directoty
    */
   storage: multer.diskStorage({
     destination: (req, file, cb) => {
       try {
-        const TEMP_COVER_PATH = process.env["TEMP_COVER_PATH"] || "/tmp/upload/lib-cover";
+        const TEMP_COVER_PATH = process.env["TEMP_UPLOADS_PATH"] || "/tmp/uploads/lib-cover";
 
         if (!fsSync.existsSync(TEMP_COVER_PATH)) {
           fsSync.mkdirSync(TEMP_COVER_PATH, { recursive: true });
