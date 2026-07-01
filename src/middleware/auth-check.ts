@@ -1,14 +1,17 @@
 import { NextFunction, Request, Response } from "express";
+import { ForbiddenError, UnauthorizedError } from "../errors/app-errors.js";
+import { Roles } from "../types/roles.js";
 
-export const authorize = (requiredRole: string) => {
+
+export const authorize = (requiredRoles: Roles[]) => {
   return (req: Request, res: Response, next: NextFunction) => {
     const sessionData = req.session.userData;
     if (!sessionData) {
-      return next(new Error("Unauthorized: No session"));
+      return next(new UnauthorizedError("No session"));
     }
 
-    if (sessionData.role !== requiredRole) {
-      return next(new Error("Forbiden: Insufficient permissions"));
+    if (!requiredRoles.includes(sessionData.role)) {
+      return next(new ForbiddenError("Insufficient permissions"));
     }
 
     next();

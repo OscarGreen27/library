@@ -10,7 +10,7 @@ export const getAllBooks = async (req: Request, res: Response, next: NextFunctio
 
     const books = await bookService.getBooks(offset, limit);
     res.status(200).json({
-      status: "success",
+      ok: true,
       data: books,
     });
   } catch (err) {
@@ -23,7 +23,7 @@ export const getBook = async (req: Request, res: Response, next: NextFunction) =
     const id = IdDtoSchema.parse(req.params["id"]);
     const book = await bookService.getBook(id);
     res.status(200).json({
-      status: "success",
+      ok: true,
       data: book,
     });
   } catch (err) {
@@ -36,7 +36,7 @@ export const incrementWant = async (req: Request, res: Response, next: NextFunct
     const id = IdDtoSchema.parse(req.params["id"]);
     const result = await bookService.updateWantCount(id);
     res.status(200).json({
-      status: "success",
+      ok: true,
       data: result,
     });
   } catch (err) {
@@ -46,10 +46,10 @@ export const incrementWant = async (req: Request, res: Response, next: NextFunct
 
 export const addBook = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const data = newBookDtoSchema.parse(req.body.data);
+    const data = newBookDtoSchema.parse(req.body);
     const result = await bookService.addBook(data);
-    res.status(200).json({
-      success: true,
+    res.status(201).json({
+      ok: true,
       id: result,
     });
   } catch (err) {
@@ -61,7 +61,7 @@ export const deleteBook = async (req: Request, res: Response, next: NextFunction
   try {
     const id = IdDtoSchema.parse(req.params["id"]);
     const result = await bookService.deleteBook(id);
-    res.status(200).json({ success: result });
+    res.status(200).json({ ok: result });
   } catch (err) {
     next(err);
   }

@@ -3,7 +3,7 @@ import { UserAuthentificationDto } from "../dto/request-dto/user-authentificatio
 import { UserRegistrationDto } from "../dto/request-dto/user-registration-dto.js";
 import { NextFunction, Request, Response } from "express";
 
-export const singin = async (req: Request, res: Response, next: NextFunction) => {
+export const singup = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const newUserData = UserRegistrationDto.parse(req.body);
     await userService.createUser(newUserData);

@@ -22,11 +22,11 @@
     
 
     /* types */
-    "typeRoots": ["./node_modules/@types", "./src/types"]
+    "typeRoots": ["./node_modules/@types", "./src/types"],
     
     /* If user TypeORM */
-    // "emitDecoratorMetadata": true,
-    // "experimentalDecorators": true
+     "emitDecoratorMetadata": true,
+     "experimentalDecorators": true
   },
   "noEmitOnError": true
 }

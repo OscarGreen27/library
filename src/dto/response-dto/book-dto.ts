@@ -8,7 +8,6 @@ export const BookSchema = z.object({
   pages: z.coerce.number(),
   isbn: z.coerce.number(),
   description: z.string(),
-  cover: z.string(),
 });
 
 export type Book = z.infer<typeof BookSchema>;

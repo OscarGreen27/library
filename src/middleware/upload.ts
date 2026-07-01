@@ -50,7 +50,7 @@ export const upload = multer({
     }
   },
   limits: {
-    fileSize: 1024 * 1024 * Number(process.env["FILE_SIZE"]) || 5,
+    fileSize: 1024 * 1024 * (Number(process.env["FILE_SIZE"]) || 5),
     files: Number(process.env["FILES"]) || 1,
     fields: Number(process.env["FIELDS"]) || 1,
     parts: Number(process.env["PARTS"]) || 2,

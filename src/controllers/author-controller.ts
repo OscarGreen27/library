@@ -9,6 +9,7 @@ export const getAuthors = async (req: Request, res: Response, next: NextFunction
     const { offset, limit } = QueryParamSchema.parse(req.query);
     const result = await authorService.getAuthors(offset, limit);
     res.status(200).json({
+      ok: true,
       data: result,
     });
   } catch (err) {
@@ -20,7 +21,7 @@ export const getAuthor = async (req: Request, res: Response, next: NextFunction)
   try {
     const id = IdDtoSchema.parse(req.params["id"]);
     const result = await authorService.getAuthor(id);
-    res.status(200).json({ data: result });
+    res.status(200).json({ ok: true, data: result });
   } catch (err) {
     next(err);
   }
@@ -30,7 +31,7 @@ export const addAuthor = async (req: Request, res: Response, next: NextFunction)
   try {
     const { name } = NewAuthorSchema.parse(req.body);
     const result = await authorService.addAuthor(name);
-    res.status(200).json({ data: result });
+    res.status(201).json({ ok: true, data: result });
   } catch (err) {
     next(err);
   }

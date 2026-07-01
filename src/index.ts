@@ -1,23 +1,17 @@
 import express from "express";
-import { fileURLToPath } from "url";
-import path, { dirname } from "path";
 import dotenv from "dotenv";
-import pool, { testDbConnection } from "./config/postgresql-connection.js";
+import { testDbConnection } from "./config/postgresql-connection.js";
 import session from "express-session";
 import bookRouter from "./routers/book-router.js";
 import authorRouter from "./routers/author-router.js";
 import userRouter from "./routers/user-router.js";
-import { errorHandler } from "./middelware/error-handler.js";
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
-const publicPath = path.join(__dirname, "..", "public");
+import coverRouter from "./routers/cover-router.js";
+import { errorHandler } from "./middleware/error-handler.js";
+import { getSeesionConfig } from "./config/session-config.js";
 
 dotenv.config();
 
 const app = express();
-
-app.use("/public", express.static(publicPath));
 app.use(express.json());
 
 app.use((req, res, next) => {
@@ -25,21 +19,12 @@ app.use((req, res, next) => {
   next();
 });
 
-app.use(
-  session({
-    secret: "super-secret-word",
-    resave: false,
-    saveUninitialized: false,
-    cookie: {
-      secure: false,
-      httpOnly: true,
-      maxAge: 600000,
-    },
-  }),
-);
+app.use(session(getSeesionConfig()));
+
 app.use("/api/v1/book", bookRouter);
 app.use("/api/v1/author", authorRouter);
 app.use("/api/v1", userRouter);
+app.use("/api/v1/cover", coverRouter);
 
 app.use(errorHandler);
 

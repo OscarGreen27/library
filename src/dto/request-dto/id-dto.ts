@@ -1,5 +1,6 @@
 import { z } from "zod/v4";
 
-export const IdDtoSchema = z.object({
-  id: z.coerce.number().int().positive(),
-});
+/**
+ * validate id from qury param
+ */
+export const IdDtoSchema = z.coerce.number().int().positive();
